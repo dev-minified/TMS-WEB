@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { addStock, useStock } from "@/hooks";
+import { useMemo, useState } from "react";
+import { addStock, useStock, useInventory } from "@/hooks";
 
 type Tab = "add" | "use";
 
@@ -11,6 +11,12 @@ export default function AddTyre() {
   const [qty, setQty] = useState("");
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const { inventory } = useInventory();
+
+  const tyreTypes = useMemo(
+    () => Array.from(new Set(inventory.map((item) => item.type))).sort(),
+    [inventory],
+  );
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -98,12 +104,21 @@ export default function AddTyre() {
                 <input
                   id="tyre-type"
                   type="text"
-                  placeholder="e.g. 275/55 R20"
+                  placeholder={tab === "add" ? "e.g. 275/55 R20" : "Search tyre type"}
                   value={type}
                   onChange={(e) => setType(e.target.value)}
                   disabled={submitting}
+                  list={tab === "use" ? "tyre-types" : undefined}
+                  autoComplete="off"
                   className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none placeholder:text-zinc-400 focus:border-zinc-500 focus:ring-2 focus:ring-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-500 dark:focus:ring-zinc-800"
                 />
+                {tab === "use" && (
+                  <datalist id="tyre-types">
+                    {tyreTypes.map((t) => (
+                      <option key={t} value={t} />
+                    ))}
+                  </datalist>
+                )}
               </div>
               <div>
                 <label
