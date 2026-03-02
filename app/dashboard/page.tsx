@@ -8,6 +8,7 @@ export default function Dashboard() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValues, setEditValues] = useState({ type: "", newQty: 0, usedQty: 0 });
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
 
   const totalNew = inventory.reduce((sum, item) => sum + item.newQty, 0);
   const totalUsed = inventory.reduce((sum, item) => sum + item.usedQty, 0);
@@ -22,8 +23,13 @@ export default function Dashboard() {
 
   async function handleSave() {
     if (editingId === null) return;
-    await updateTyre(editingId, editValues);
-    setEditingId(null);
+    setSaving(true);
+    try {
+      await updateTyre(editingId, editValues);
+      setEditingId(null);
+    } finally {
+      setSaving(false);
+    }
   }
 
   function handleCancel() {
@@ -164,13 +170,37 @@ export default function Dashboard() {
                           <div className="flex items-center justify-end gap-2">
                             <button
                               onClick={handleSave}
-                              className="rounded-md bg-zinc-900 px-2.5 py-1 text-xs font-medium text-white transition-colors hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
+                              disabled={saving}
+                              className="inline-flex items-center rounded-md bg-zinc-900 px-2.5 py-1 text-xs font-medium text-white transition-colors hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-70 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
                             >
-                              Save
+                              {saving && (
+                                <svg
+                                  className="mr-1.5 h-3.5 w-3.5 animate-spin text-white"
+                                  viewBox="0 0 24 24"
+                                  aria-hidden="true"
+                                >
+                                  <circle
+                                    className="opacity-25"
+                                    cx="12"
+                                    cy="12"
+                                    r="10"
+                                    stroke="currentColor"
+                                    strokeWidth="4"
+                                    fill="none"
+                                  />
+                                  <path
+                                    className="opacity-75"
+                                    fill="currentColor"
+                                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                                  />
+                                </svg>
+                              )}
+                              {saving ? "Saving..." : "Save"}
                             </button>
                             <button
                               onClick={handleCancel}
-                              className="rounded-md border border-zinc-300 px-2.5 py-1 text-xs font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                              disabled={saving}
+                              className="rounded-md border border-zinc-300 px-2.5 py-1 text-xs font-medium text-zinc-700 transition-colors hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-70 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
                             >
                               Cancel
                             </button>
