@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { upsertUserLogin } from "@/hooks";
 
 const STATIC_EMAIL = "admin@tms.com";
 const STATIC_PASSWORD = "admin123";
@@ -13,16 +14,23 @@ export default function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
 
     setLoading(true);
-    if (email === STATIC_EMAIL && password === STATIC_PASSWORD) {
-      localStorage.setItem("tms_auth", "true");
-      router.push("/dashboard");
-    } else {
+    try {
+      if (email === STATIC_EMAIL && password === STATIC_PASSWORD) {
+        await upsertUserLogin({ email, role: "admin" });
+        localStorage.setItem("tms_auth", "true");
+        router.push("/dashboard");
+        return;
+      }
+
       setError("Invalid email or password.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Login failed.");
+    } finally {
       setLoading(false);
     }
   }

@@ -46,6 +46,46 @@ const NAV_ITEMS = [
     ),
     matchPaths: ["/dashboard"],
   },
+  {
+    label: "Add Customer",
+    href: "/add-customer",
+    icon: (
+      <svg
+        className="h-5 w-5"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        strokeWidth={2}
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0118 0"
+        />
+      </svg>
+    ),
+    matchPaths: ["/add-customer"],
+  },
+  {
+    label: "Customers",
+    href: "/customers",
+    icon: (
+      <svg
+        className="h-5 w-5"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        strokeWidth={2}
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M4 6h16M4 10h16M4 14h10M4 18h10"
+        />
+      </svg>
+    ),
+    matchPaths: ["/customers"],
+  },
 ];
 
 export default function Sidebar() {

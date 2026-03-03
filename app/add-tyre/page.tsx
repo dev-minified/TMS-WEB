@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { addStock, useStock, useInventory } from "@/hooks";
+import { TyreTypeSelect } from "@/components/tyre-type-select";
 
 type Tab = "add" | "use";
 
@@ -9,7 +10,10 @@ export default function AddTyre() {
   const [tab, setTab] = useState<Tab>("add");
   const [type, setType] = useState("");
   const [qty, setQty] = useState("");
-  const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const [feedback, setFeedback] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const { inventory } = useInventory();
 
@@ -27,15 +31,24 @@ export default function AddTyre() {
     try {
       if (tab === "add") {
         await addStock(type.trim(), Number(qty));
-        setFeedback({ type: "success", message: `Added ${qty} of "${type.trim()}" to inventory.` });
+        setFeedback({
+          type: "success",
+          message: `Added ${qty} of "${type.trim()}" to inventory.`,
+        });
       } else {
         await useStock(type.trim(), Number(qty));
-        setFeedback({ type: "success", message: `Used ${qty} of "${type.trim()}" from inventory.` });
+        setFeedback({
+          type: "success",
+          message: `Used ${qty} of "${type.trim()}" from inventory.`,
+        });
       }
       setType("");
       setQty("");
     } catch (err) {
-      setFeedback({ type: "error", message: err instanceof Error ? err.message : "Operation failed." });
+      setFeedback({
+        type: "error",
+        message: err instanceof Error ? err.message : "Operation failed.",
+      });
     } finally {
       setSubmitting(false);
     }
@@ -55,7 +68,10 @@ export default function AddTyre() {
 
         <div className="mb-6 flex gap-2">
           <button
-            onClick={() => { setTab("add"); setFeedback(null); }}
+            onClick={() => {
+              setTab("add");
+              setFeedback(null);
+            }}
             className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
               tab === "add"
                 ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
@@ -65,7 +81,10 @@ export default function AddTyre() {
             Add Tyre
           </button>
           <button
-            onClick={() => { setTab("use"); setFeedback(null); }}
+            onClick={() => {
+              setTab("use");
+              setFeedback(null);
+            }}
             className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
               tab === "use"
                 ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
@@ -101,23 +120,25 @@ export default function AddTyre() {
                 >
                   Tyre Type
                 </label>
-                <input
-                  id="tyre-type"
-                  type="text"
-                  placeholder={tab === "add" ? "e.g. 275/55 R20" : "Search tyre type"}
-                  value={type}
-                  onChange={(e) => setType(e.target.value)}
-                  disabled={submitting}
-                  list={tab === "use" ? "tyre-types" : undefined}
-                  autoComplete="off"
-                  className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none placeholder:text-zinc-400 focus:border-zinc-500 focus:ring-2 focus:ring-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-500 dark:focus:ring-zinc-800"
-                />
-                {tab === "use" && (
-                  <datalist id="tyre-types">
-                    {tyreTypes.map((t) => (
-                      <option key={t} value={t} />
-                    ))}
-                  </datalist>
+                {tab === "use" ? (
+                  <TyreTypeSelect
+                    id="tyre-type"
+                    options={tyreTypes}
+                    value={type}
+                    onChange={setType}
+                    placeholder="Select tyre type"
+                    disabled={submitting}
+                  />
+                ) : (
+                  <input
+                    id="tyre-type"
+                    type="text"
+                    placeholder="e.g. 275/55 R20"
+                    value={type}
+                    onChange={(e) => setType(e.target.value)}
+                    disabled={submitting}
+                    className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none placeholder:text-zinc-400 focus:border-zinc-500 focus:ring-2 focus:ring-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-500 dark:focus:ring-zinc-800"
+                  />
                 )}
               </div>
               <div>
@@ -177,7 +198,11 @@ export default function AddTyre() {
               </button>
               <button
                 type="button"
-                onClick={() => { setType(""); setQty(""); setFeedback(null); }}
+                onClick={() => {
+                  setType("");
+                  setQty("");
+                  setFeedback(null);
+                }}
                 className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
               >
                 Reset
