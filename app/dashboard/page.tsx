@@ -9,9 +9,13 @@ export default function Dashboard() {
   const [editValues, setEditValues] = useState({ type: "", newQty: 0, usedQty: 0 });
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [search, setSearch] = useState("");
 
   const totalNew = inventory.reduce((sum, item) => sum + item.newQty, 0);
   const totalUsed = inventory.reduce((sum, item) => sum + item.usedQty, 0);
+  const filteredInventory = inventory.filter((item) =>
+    item.type.toLowerCase().includes(search.toLowerCase())
+  );
   const deleteItem = inventory.find((item) => item.id === deleteId);
 
   function handleEdit(id: string) {
@@ -61,13 +65,22 @@ export default function Dashboard() {
   return (
     <div className="px-4 pt-12 pb-12 font-sans sm:px-6 lg:px-8">
       <div className="mx-auto w-full max-w-4xl">
-        <div className="mb-8">
-          <h1 className="mb-1 text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
-            Inventory
-          </h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            Overview of all tyres in stock.
-          </p>
+        <div className="mb-8 flex items-start justify-between gap-4">
+          <div>
+            <h1 className="mb-1 text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+              Inventory
+            </h1>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+              Overview of all tyres in stock.
+            </p>
+          </div>
+          <input
+            type="text"
+            placeholder="Search tyre type..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-64 rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm text-zinc-900 outline-none placeholder:text-zinc-400 focus:border-zinc-400 focus:ring-1 focus:ring-zinc-200 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-600 dark:focus:ring-zinc-800"
+          />
         </div>
 
         <div className="mb-8 grid grid-cols-3 gap-3">
@@ -97,10 +110,10 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {inventory.length === 0 ? (
+        {filteredInventory.length === 0 ? (
           <div className="rounded-lg border border-zinc-200 bg-white p-8 text-center dark:border-zinc-800 dark:bg-zinc-900">
             <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              No tyres in inventory. Add some from the Add Tyre page.
+              {search ? "No tyres match your search." : "No tyres in inventory. Add some from the Add Tyre page."}
             </p>
           </div>
         ) : (
@@ -126,7 +139,7 @@ export default function Dashboard() {
                 </tr>
               </thead>
               <tbody>
-                {inventory.map((item) => (
+                {filteredInventory.map((item) => (
                   <tr
                     key={item.id}
                     className="border-b border-zinc-100 bg-white last:border-b-0 dark:border-zinc-800/50 dark:bg-zinc-950"
