@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { addCustomer, useInventory, useStock } from "@/hooks";
 import { TyreTypeSelect } from "@/components/tyre-type-select";
+import { BrandSelect } from "@/components/brand-select";
 
 interface CarForm {
   carNumber: string;
@@ -11,6 +12,7 @@ interface CarForm {
 }
 
 interface ItemForm {
+  brand: string;
   tyreType: string;
   quantity: string;
 }
@@ -21,7 +23,7 @@ export default function AddCustomerPage() {
   const [cars, setCars] = useState<CarForm[]>([
     { carNumber: "", makeModel: "", warrantyDetails: "" },
   ]);
-  const [items, setItems] = useState<ItemForm[]>([{ tyreType: "", quantity: "" }]);
+  const [items, setItems] = useState<ItemForm[]>([{ brand: "", tyreType: "", quantity: "" }]);
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{
     type: "success" | "error";
@@ -31,6 +33,11 @@ export default function AddCustomerPage() {
 
   const tyreTypes = useMemo(
     () => Array.from(new Set(inventory.map((i) => i.type))).sort(),
+    [inventory],
+  );
+
+  const brands = useMemo(
+    () => Array.from(new Set(inventory.map((i) => i.brand).filter(Boolean))).sort(),
     [inventory],
   );
 
@@ -55,7 +62,7 @@ export default function AddCustomerPage() {
   }
 
   function addItemRow() {
-    setItems((prev) => [...prev, { tyreType: "", quantity: "" }]);
+    setItems((prev) => [...prev, { brand: "", tyreType: "", quantity: "" }]);
   }
 
   function removeItemRow(index: number) {
@@ -76,10 +83,11 @@ export default function AddCustomerPage() {
 
     const cleanedItems = items
       .map((it) => ({
+        brand: it.brand.trim(),
         tyreType: it.tyreType.trim(),
         quantity: Number(it.quantity),
       }))
-      .filter((it) => it.tyreType && it.quantity > 0);
+      .filter((it) => it.brand && it.tyreType && it.quantity > 0);
 
     if (cleanedItems.length === 0) {
       setFeedback({
@@ -102,7 +110,7 @@ export default function AddCustomerPage() {
       for (const item of cleanedItems) {
         // This will throw if stock is not available.
         // eslint-disable-next-line no-await-in-loop
-        await useStock(item.tyreType, item.quantity);
+        await useStock(item.brand, item.tyreType, item.quantity);
       }
 
       await addCustomer({
@@ -119,7 +127,7 @@ export default function AddCustomerPage() {
       setName("");
       setMobile("");
       setCars([{ carNumber: "", makeModel: "", warrantyDetails: "" }]);
-      setItems([{ tyreType: "", quantity: "" }]);
+      setItems([{ brand: "", tyreType: "", quantity: "" }]);
     } catch (err) {
       setFeedback({
         type: "error",
@@ -272,8 +280,15 @@ export default function AddCustomerPage() {
               {items.map((item, index) => (
                 <div
                   key={index}
-                  className="grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)_auto] gap-3"
+                  className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,0.7fr)_auto] gap-3"
                 >
+                  <BrandSelect
+                    options={brands}
+                    value={item.brand}
+                    onChange={(v) => updateItem(index, { brand: v })}
+                    placeholder="Select brand"
+                    disabled={submitting}
+                  />
                   <TyreTypeSelect
                     options={tyreTypes}
                     value={item.tyreType}

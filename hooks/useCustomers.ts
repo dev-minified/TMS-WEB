@@ -18,6 +18,7 @@ export interface CustomerCar {
 }
 
 export interface PurchasedItem {
+  brand: string;
   tyreType: string;
   quantity: number;
 }

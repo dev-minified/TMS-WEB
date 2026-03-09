@@ -3,11 +3,13 @@
 import { useMemo, useState } from "react";
 import { addStock, useStock, useInventory } from "@/hooks";
 import { TyreTypeSelect } from "@/components/tyre-type-select";
+import { BrandSelect } from "@/components/brand-select";
 
 type Tab = "add" | "use";
 
 export default function AddTyre() {
   const [tab, setTab] = useState<Tab>("add");
+  const [brand, setBrand] = useState("");
   const [type, setType] = useState("");
   const [qty, setQty] = useState("");
   const [feedback, setFeedback] = useState<{
@@ -22,26 +24,32 @@ export default function AddTyre() {
     [inventory],
   );
 
+  const brands = useMemo(
+    () => Array.from(new Set(inventory.map((item) => item.brand).filter(Boolean))).sort(),
+    [inventory],
+  );
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!type.trim() || !qty) return;
+    if (!brand.trim() || !type.trim() || !qty) return;
     setFeedback(null);
 
     setSubmitting(true);
     try {
       if (tab === "add") {
-        await addStock(type.trim(), Number(qty));
+        await addStock(brand.trim(), type.trim(), Number(qty));
         setFeedback({
           type: "success",
-          message: `Added ${qty} of "${type.trim()}" to inventory.`,
+          message: `Added ${qty} of "${brand.trim()} - ${type.trim()}" to inventory.`,
         });
       } else {
-        await useStock(type.trim(), Number(qty));
+        await useStock(brand.trim(), type.trim(), Number(qty));
         setFeedback({
           type: "success",
-          message: `Used ${qty} of "${type.trim()}" from inventory.`,
+          message: `Used ${qty} of "${brand.trim()} - ${type.trim()}" from inventory.`,
         });
       }
+      setBrand("");
       setType("");
       setQty("");
     } catch (err) {
@@ -112,7 +120,35 @@ export default function AddTyre() {
             {tab === "add" ? "Add Stock" : "Use Stock"}
           </h2>
           <form onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <div>
+                <label
+                  htmlFor="tyre-brand"
+                  className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+                >
+                  Brand
+                </label>
+                {tab === "use" ? (
+                  <BrandSelect
+                    id="tyre-brand"
+                    options={brands}
+                    value={brand}
+                    onChange={setBrand}
+                    placeholder="Select brand"
+                    disabled={submitting}
+                  />
+                ) : (
+                  <input
+                    id="tyre-brand"
+                    type="text"
+                    placeholder="e.g. Dunlop"
+                    value={brand}
+                    onChange={(e) => setBrand(e.target.value)}
+                    disabled={submitting}
+                    className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none placeholder:text-zinc-400 focus:border-zinc-500 focus:ring-2 focus:ring-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-500 dark:focus:ring-zinc-800"
+                  />
+                )}
+              </div>
               <div>
                 <label
                   htmlFor="tyre-type"
@@ -199,6 +235,7 @@ export default function AddTyre() {
               <button
                 type="button"
                 onClick={() => {
+                  setBrand("");
                   setType("");
                   setQty("");
                   setFeedback(null);
