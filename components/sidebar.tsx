@@ -1,11 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "@/hooks";
 
-const NAV_ITEMS = [
+type NavItem = {
+  label: string;
+  href: string;
+  icon: React.ReactNode;
+  matchPaths: string[];
+  adminOnly?: boolean;
+};
+
+const NAV_ITEMS: NavItem[] = [
   {
     label: "Add Tyre",
     href: "/add-tyre",
@@ -25,6 +33,7 @@ const NAV_ITEMS = [
       </svg>
     ),
     matchPaths: ["/"],
+    adminOnly: true,
   },
   {
     label: "Inventory",
@@ -45,6 +54,7 @@ const NAV_ITEMS = [
       </svg>
     ),
     matchPaths: ["/dashboard"],
+    adminOnly: true,
   },
   {
     label: "Add Customer",
@@ -65,6 +75,7 @@ const NAV_ITEMS = [
       </svg>
     ),
     matchPaths: ["/add-customer"],
+    adminOnly: true,
   },
   {
     label: "Customers",
@@ -85,6 +96,27 @@ const NAV_ITEMS = [
       </svg>
     ),
     matchPaths: ["/customers"],
+    adminOnly: true,
+  },
+  {
+    label: "Stock",
+    href: "/stock",
+    icon: (
+      <svg
+        className="h-5 w-5"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        strokeWidth={2}
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+        />
+      </svg>
+    ),
+    matchPaths: ["/stock"],
   },
 ];
 
@@ -93,9 +125,19 @@ export default function Sidebar() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const { theme, toggle, mounted } = useTheme();
+  const [role, setRole] = useState<string>("user");
+
+  useEffect(() => {
+    setRole(localStorage.getItem("tms_role") || "user");
+  }, []);
+
+  const visibleItems = NAV_ITEMS.filter(
+    (item) => !item.adminOnly || role === "super_admin",
+  );
 
   function handleLogout() {
     localStorage.removeItem("tms_auth");
+    localStorage.removeItem("tms_role");
     router.push("/login");
   }
 
@@ -147,7 +189,7 @@ export default function Sidebar() {
         </div>
 
         <nav className="flex-1 space-y-1 px-3">
-          {NAV_ITEMS.map((item) => {
+          {visibleItems.map((item) => {
             const active = isActive(item.matchPaths);
             return (
               <Link
