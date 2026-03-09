@@ -6,22 +6,23 @@ import { useInventory, updateTyre, deleteTyre } from "@/hooks";
 export default function Dashboard() {
   const { inventory, loading, error } = useInventory();
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editValues, setEditValues] = useState({ type: "", newQty: 0, usedQty: 0 });
+  const [editValues, setEditValues] = useState({ brand: "", type: "", newQty: 0, usedQty: 0 });
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState("");
 
   const totalNew = inventory.reduce((sum, item) => sum + item.newQty, 0);
   const totalUsed = inventory.reduce((sum, item) => sum + item.usedQty, 0);
-  const filteredInventory = inventory.filter((item) =>
-    item.type.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredInventory = inventory.filter((item) => {
+    const q = search.toLowerCase();
+    return item.type.toLowerCase().includes(q) || item.brand.toLowerCase().includes(q);
+  });
   const deleteItem = inventory.find((item) => item.id === deleteId);
 
   function handleEdit(id: string) {
     const item = inventory.find((i) => i.id === id);
     if (!item) return;
-    setEditValues({ type: item.type, newQty: item.newQty, usedQty: item.usedQty });
+    setEditValues({ brand: item.brand, type: item.type, newQty: item.newQty, usedQty: item.usedQty });
     setEditingId(id);
   }
 
@@ -76,7 +77,7 @@ export default function Dashboard() {
           </div>
           <input
             type="text"
-            placeholder="Search tyre type..."
+            placeholder="Search brand or type..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-64 rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm text-zinc-900 outline-none placeholder:text-zinc-400 focus:border-zinc-400 focus:ring-1 focus:ring-zinc-200 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-600 dark:focus:ring-zinc-800"
@@ -122,6 +123,9 @@ export default function Dashboard() {
               <thead>
                 <tr className="border-b border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900">
                   <th className="px-4 py-3 font-medium text-zinc-700 dark:text-zinc-300">
+                    Brand
+                  </th>
+                  <th className="px-4 py-3 font-medium text-zinc-700 dark:text-zinc-300">
                     Tyre Type
                   </th>
                   <th className="px-4 py-3 text-right font-medium text-zinc-700 dark:text-zinc-300">
@@ -146,6 +150,16 @@ export default function Dashboard() {
                   >
                     {editingId === item.id ? (
                       <>
+                        <td className="px-4 py-2">
+                          <input
+                            type="text"
+                            value={editValues.brand}
+                            onChange={(e) =>
+                              setEditValues((v) => ({ ...v, brand: e.target.value }))
+                            }
+                            className="w-full rounded-md border border-zinc-300 bg-white px-2 py-1 text-sm text-zinc-900 outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:focus:border-zinc-500 dark:focus:ring-zinc-800"
+                          />
+                        </td>
                         <td className="px-4 py-2">
                           <input
                             type="text"
@@ -222,6 +236,9 @@ export default function Dashboard() {
                       </>
                     ) : (
                       <>
+                        <td className="px-4 py-3 font-medium text-zinc-900 dark:text-zinc-100">
+                          {item.brand}
+                        </td>
                         <td className="px-4 py-3 font-medium text-zinc-900 dark:text-zinc-100">
                           {item.type}
                         </td>

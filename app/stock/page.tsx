@@ -9,9 +9,10 @@ export default function StockPage() {
 
   const totalNew = inventory.reduce((sum, item) => sum + item.newQty, 0);
   const totalUsed = inventory.reduce((sum, item) => sum + item.usedQty, 0);
-  const filteredInventory = inventory.filter((item) =>
-    item.type.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredInventory = inventory.filter((item) => {
+    const q = search.toLowerCase();
+    return item.type.toLowerCase().includes(q) || item.brand.toLowerCase().includes(q);
+  });
 
   if (loading) {
     return (
@@ -43,7 +44,7 @@ export default function StockPage() {
           </div>
           <input
             type="text"
-            placeholder="Search tyre type..."
+            placeholder="Search brand or type..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-64 rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm text-zinc-900 outline-none placeholder:text-zinc-400 focus:border-zinc-400 focus:ring-1 focus:ring-zinc-200 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-600 dark:focus:ring-zinc-800"
@@ -89,6 +90,9 @@ export default function StockPage() {
               <thead>
                 <tr className="border-b border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900">
                   <th className="px-4 py-3 font-medium text-zinc-700 dark:text-zinc-300">
+                    Brand
+                  </th>
+                  <th className="px-4 py-3 font-medium text-zinc-700 dark:text-zinc-300">
                     Tyre Type
                   </th>
                   <th className="px-4 py-3 text-right font-medium text-zinc-700 dark:text-zinc-300">
@@ -108,6 +112,9 @@ export default function StockPage() {
                     key={item.id}
                     className="border-b border-zinc-100 bg-white last:border-b-0 dark:border-zinc-800/50 dark:bg-zinc-950"
                   >
+                    <td className="px-4 py-3 font-medium text-zinc-900 dark:text-zinc-100">
+                      {item.brand}
+                    </td>
                     <td className="px-4 py-3 font-medium text-zinc-900 dark:text-zinc-100">
                       {item.type}
                     </td>

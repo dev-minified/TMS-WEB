@@ -16,7 +16,7 @@ export default function CustomersPage() {
         c.name,
         c.mobile,
         ...c.cars.flatMap((car) => [car.carNumber, car.makeModel, car.warrantyDetails ?? ""]),
-        ...c.purchasedItems.flatMap((item) => [item.tyreType, String(item.quantity)]),
+        ...c.purchasedItems.flatMap((item) => [item.brand ?? "", item.tyreType, String(item.quantity)]),
       ]
         .join(" ")
         .toLowerCase();
@@ -174,7 +174,7 @@ export default function CustomersPage() {
                               key={`${item.tyreType}-${index}`}
                               className="text-xs text-zinc-600 dark:text-zinc-300"
                             >
-                              <span className="font-medium">{item.tyreType}</span>{" "}
+                              <span className="font-medium">{item.brand ? `${item.brand} - ` : ""}{item.tyreType}</span>{" "}
                               · {item.quantity.toLocaleString()} pcs
                             </div>
                           ))}

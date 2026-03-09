@@ -17,6 +17,7 @@ import { db } from "@/lib/firebase";
 
 export interface Tyre {
   id: string;
+  brand: string;
   type: string;
   newQty: number;
   usedQty: number;
@@ -33,6 +34,7 @@ export function useInventory() {
       (snapshot) => {
         const items: Tyre[] = snapshot.docs.map((d) => ({
           id: d.id,
+          brand: d.data().brand ?? "",
           type: d.data().type,
           newQty: d.data().newQty,
           usedQty: d.data().usedQty,
@@ -62,7 +64,7 @@ export async function addTyre(type: string, newQty: number, usedQty: number) {
 
 export async function updateTyre(
   id: string,
-  data: Partial<Pick<Tyre, "type" | "newQty" | "usedQty">>,
+  data: Partial<Pick<Tyre, "brand" | "type" | "newQty" | "usedQty">>,
 ) {
   await updateDoc(doc(db, "tyres", id), data);
 }
@@ -71,12 +73,17 @@ export async function deleteTyre(id: string) {
   await deleteDoc(doc(db, "tyres", id));
 }
 
-export async function addStock(type: string, quantity: number) {
-  const q = query(collection(db, "tyres"), where("type", "==", type));
+export async function addStock(brand: string, type: string, quantity: number) {
+  const q = query(
+    collection(db, "tyres"),
+    where("brand", "==", brand),
+    where("type", "==", type),
+  );
   const snapshot = await getDocs(q);
 
   if (snapshot.empty) {
     await addDoc(collection(db, "tyres"), {
+      brand,
       type,
       newQty: quantity,
       usedQty: 0,
@@ -90,13 +97,17 @@ export async function addStock(type: string, quantity: number) {
   }
 }
 
-export async function useStock(type: string, quantity: number) {
-  const q = query(collection(db, "tyres"), where("type", "==", type));
+export async function useStock(brand: string, type: string, quantity: number) {
+  const q = query(
+    collection(db, "tyres"),
+    where("brand", "==", brand),
+    where("type", "==", type),
+  );
   const snapshot = await getDocs(q);
 
   if (snapshot.empty) {
     throw new Error(
-      `Tyre type "${type}" is not in inventory. Please add this tyre and its quantity before using it.`,
+      `Tyre "${brand} - ${type}" is not in inventory. Please add this tyre and its quantity before using it.`,
     );
   }
 
@@ -105,7 +116,7 @@ export async function useStock(type: string, quantity: number) {
 
   if (quantity > remaining) {
     throw new Error(
-      `You are trying to use more "${type}" tyres than are available. Only ${remaining} remaining. Please add more stock or use a smaller quantity.`,
+      `You are trying to use more "${brand} - ${type}" tyres than are available. Only ${remaining} remaining. Please add more stock or use a smaller quantity.`,
     );
   }
 
