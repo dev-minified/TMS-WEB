@@ -4,8 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { upsertUserLogin } from "@/hooks";
 
-const STATIC_EMAIL = "admin@tms.com";
-const STATIC_PASSWORD = "admin123";
+import { UserRole } from "@/hooks/useUsers";
+
+const USERS: { email: string; password: string; role: UserRole }[] = [
+  { email: "admin@tms.com", password: "admin123", role: "super_admin" },
+  { email: "user@tms.com", password: "user123", role: "user" },
+];
 
 export default function Login() {
   const router = useRouter();
@@ -20,10 +24,15 @@ export default function Login() {
 
     setLoading(true);
     try {
-      if (email === STATIC_EMAIL && password === STATIC_PASSWORD) {
-        await upsertUserLogin({ email, role: "admin" });
+      const matched = USERS.find(
+        (u) => u.email === email && u.password === password,
+      );
+
+      if (matched) {
+        await upsertUserLogin({ email, role: matched.role });
         localStorage.setItem("tms_auth", "true");
-        router.push("/dashboard");
+        localStorage.setItem("tms_role", matched.role);
+        router.push(matched.role === "super_admin" ? "/dashboard" : "/stock");
         return;
       }
 

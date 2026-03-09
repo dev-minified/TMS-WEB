@@ -3,7 +3,7 @@
 import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
-export type UserRole = "admin";
+export type UserRole = "super_admin" | "user";
 
 export interface AppUser {
   email: string;
