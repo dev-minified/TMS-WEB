@@ -104,6 +104,12 @@ export default function StockPage() {
                   <th className="px-4 py-3 text-right font-medium text-zinc-700 dark:text-zinc-300">
                     Remaining
                   </th>
+                  <th className="px-4 py-3 text-right font-medium text-zinc-700 dark:text-zinc-300">
+                    Unit Price
+                  </th>
+                  <th className="px-4 py-3 text-right font-medium text-zinc-700 dark:text-zinc-300">
+                    Total Price
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -126,6 +132,12 @@ export default function StockPage() {
                     </td>
                     <td className="px-4 py-3 text-right text-zinc-600 dark:text-zinc-400">
                       {(item.newQty - item.usedQty).toLocaleString()}
+                    </td>
+                    <td className="px-4 py-3 text-right text-zinc-600 dark:text-zinc-400">
+                      {item.unitPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </td>
+                    <td className="px-4 py-3 text-right text-zinc-600 dark:text-zinc-400">
+                      {(item.newQty * item.unitPrice).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </td>
                   </tr>
                 ))}

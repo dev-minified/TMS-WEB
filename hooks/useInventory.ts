@@ -21,6 +21,7 @@ export interface Tyre {
   type: string;
   newQty: number;
   usedQty: number;
+  unitPrice: number;
 }
 
 export function useInventory() {
@@ -38,6 +39,7 @@ export function useInventory() {
           type: d.data().type,
           newQty: d.data().newQty,
           usedQty: d.data().usedQty,
+          unitPrice: d.data().unitPrice ?? 0,
         }));
         setInventory(items);
         setLoading(false);
@@ -64,7 +66,7 @@ export async function addTyre(type: string, newQty: number, usedQty: number) {
 
 export async function updateTyre(
   id: string,
-  data: Partial<Pick<Tyre, "brand" | "type" | "newQty" | "usedQty">>,
+  data: Partial<Pick<Tyre, "brand" | "type" | "newQty" | "usedQty" | "unitPrice">>,
 ) {
   await updateDoc(doc(db, "tyres", id), data);
 }
@@ -73,7 +75,7 @@ export async function deleteTyre(id: string) {
   await deleteDoc(doc(db, "tyres", id));
 }
 
-export async function addStock(brand: string, type: string, quantity: number) {
+export async function addStock(brand: string, type: string, quantity: number, unitPrice: number) {
   const q = query(
     collection(db, "tyres"),
     where("brand", "==", brand),
@@ -87,12 +89,14 @@ export async function addStock(brand: string, type: string, quantity: number) {
       type,
       newQty: quantity,
       usedQty: 0,
+      unitPrice,
       createdAt: serverTimestamp(),
     });
   } else {
     const existing = snapshot.docs[0];
     await updateDoc(doc(db, "tyres", existing.id), {
       newQty: existing.data().newQty + quantity,
+      unitPrice,
     });
   }
 }

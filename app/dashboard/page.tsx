@@ -6,7 +6,7 @@ import { useInventory, updateTyre, deleteTyre } from "@/hooks";
 export default function Dashboard() {
   const { inventory, loading, error } = useInventory();
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editValues, setEditValues] = useState({ brand: "", type: "", newQty: 0, usedQty: 0 });
+  const [editValues, setEditValues] = useState({ brand: "", type: "", newQty: 0, usedQty: 0, unitPrice: 0 });
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState("");
@@ -22,7 +22,7 @@ export default function Dashboard() {
   function handleEdit(id: string) {
     const item = inventory.find((i) => i.id === id);
     if (!item) return;
-    setEditValues({ brand: item.brand, type: item.type, newQty: item.newQty, usedQty: item.usedQty });
+    setEditValues({ brand: item.brand, type: item.type, newQty: item.newQty, usedQty: item.usedQty, unitPrice: item.unitPrice });
     setEditingId(id);
   }
 
@@ -138,6 +138,9 @@ export default function Dashboard() {
                     Remaining
                   </th>
                   <th className="px-4 py-3 text-right font-medium text-zinc-700 dark:text-zinc-300">
+                    Unit Price
+                  </th>
+                  <th className="px-4 py-3 text-right font-medium text-zinc-700 dark:text-zinc-300">
                     Actions
                   </th>
                 </tr>
@@ -192,6 +195,18 @@ export default function Dashboard() {
                         </td>
                         <td className="px-4 py-3 text-right text-zinc-600 dark:text-zinc-400">
                           {(editValues.newQty - editValues.usedQty).toLocaleString()}
+                        </td>
+                        <td className="px-4 py-2">
+                          <input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value={editValues.unitPrice}
+                            onChange={(e) =>
+                              setEditValues((v) => ({ ...v, unitPrice: Number(e.target.value) }))
+                            }
+                            className="w-full rounded-md border border-zinc-300 bg-white px-2 py-1 text-right text-sm text-zinc-900 outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:focus:border-zinc-500 dark:focus:ring-zinc-800"
+                          />
                         </td>
                         <td className="px-4 py-2 text-right">
                           <div className="flex items-center justify-end gap-2">
@@ -250,6 +265,9 @@ export default function Dashboard() {
                         </td>
                         <td className="px-4 py-3 text-right text-zinc-600 dark:text-zinc-400">
                           {(item.newQty - item.usedQty).toLocaleString()}
+                        </td>
+                        <td className="px-4 py-3 text-right text-zinc-600 dark:text-zinc-400">
+                          {item.unitPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </td>
                         <td className="px-4 py-3 text-right">
                           <div className="flex items-center justify-end gap-2">
