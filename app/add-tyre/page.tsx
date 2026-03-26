@@ -12,6 +12,7 @@ export default function AddTyre() {
   const [brand, setBrand] = useState("");
   const [type, setType] = useState("");
   const [qty, setQty] = useState("");
+  const [unitPrice, setUnitPrice] = useState("");
   const [feedback, setFeedback] = useState<{
     type: "success" | "error";
     message: string;
@@ -31,13 +32,13 @@ export default function AddTyre() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!brand.trim() || !type.trim() || !qty) return;
+    if (!brand.trim() || !type.trim() || !qty || (tab === "add" && !unitPrice)) return;
     setFeedback(null);
 
     setSubmitting(true);
     try {
       if (tab === "add") {
-        await addStock(brand.trim(), type.trim(), Number(qty));
+        await addStock(brand.trim(), type.trim(), Number(qty), Number(unitPrice));
         setFeedback({
           type: "success",
           message: `Added ${qty} of "${brand.trim()} - ${type.trim()}" to inventory.`,
@@ -52,6 +53,7 @@ export default function AddTyre() {
       setBrand("");
       setType("");
       setQty("");
+      setUnitPrice("");
     } catch (err) {
       setFeedback({
         type: "error",
@@ -120,7 +122,7 @@ export default function AddTyre() {
             {tab === "add" ? "Add Stock" : "Use Stock"}
           </h2>
           <form onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <div className={`grid grid-cols-1 gap-3 ${tab === "add" ? "sm:grid-cols-5" : "sm:grid-cols-3"}`}>
               <div>
                 <label
                   htmlFor="tyre-brand"
@@ -195,6 +197,44 @@ export default function AddTyre() {
                   className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none placeholder:text-zinc-400 focus:border-zinc-500 focus:ring-2 focus:ring-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-500 dark:focus:ring-zinc-800"
                 />
               </div>
+              {tab === "add" && (
+                <>
+                  <div>
+                    <label
+                      htmlFor="tyre-unit-price"
+                      className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+                    >
+                      Per Unit Price
+                    </label>
+                    <input
+                      id="tyre-unit-price"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      placeholder="e.g. 250"
+                      value={unitPrice}
+                      onChange={(e) => setUnitPrice(e.target.value)}
+                      disabled={submitting}
+                      className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none placeholder:text-zinc-400 focus:border-zinc-500 focus:ring-2 focus:ring-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-500 dark:focus:ring-zinc-800"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+                    >
+                      Total Price
+                    </label>
+                    <div className="flex h-[38px] items-center rounded-lg border border-zinc-200 bg-zinc-50 px-3 text-sm text-zinc-700 dark:border-zinc-700 dark:bg-zinc-800/50 dark:text-zinc-300">
+                      {qty && unitPrice
+                        ? (Number(qty) * Number(unitPrice)).toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })
+                        : "—"}
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
             <div className="mt-4 flex gap-3">
               <button
@@ -238,6 +278,7 @@ export default function AddTyre() {
                   setBrand("");
                   setType("");
                   setQty("");
+                  setUnitPrice("");
                   setFeedback(null);
                 }}
                 className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
