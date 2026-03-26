@@ -47,7 +47,7 @@ export default function AddTyre() {
         await useStock(brand.trim(), type.trim(), Number(qty));
         setFeedback({
           type: "success",
-          message: `Used ${qty} of "${brand.trim()} - ${type.trim()}" from inventory.`,
+          message: `Sold ${qty} of "${brand.trim()} - ${type.trim()}" from inventory.`,
         });
       }
       setBrand("");
@@ -72,7 +72,7 @@ export default function AddTyre() {
             Manage Tyres
           </h1>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            Add new stock or record tyre usage.
+            Add new stock or record tyre sales.
           </p>
         </div>
 
@@ -101,7 +101,7 @@ export default function AddTyre() {
                 : "border border-zinc-300 text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
             }`}
           >
-            Use Tyre
+            Sell Tyre
           </button>
         </div>
 
@@ -119,7 +119,7 @@ export default function AddTyre() {
 
         <div className="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
           <h2 className="mb-4 text-sm font-medium text-zinc-900 dark:text-zinc-100">
-            {tab === "add" ? "Add Stock" : "Use Stock"}
+            {tab === "add" ? "Add Stock" : "Sell Stock"}
           </h2>
           <form onSubmit={handleSubmit}>
             <div className={`grid grid-cols-1 gap-3 ${tab === "add" ? "sm:grid-cols-5" : "sm:grid-cols-3"}`}>
@@ -270,7 +270,7 @@ export default function AddTyre() {
                     : "Processing..."
                   : tab === "add"
                     ? "Add Stock"
-                    : "Use Stock"}
+                    : "Sell Stock"}
               </button>
               <button
                 type="button"
